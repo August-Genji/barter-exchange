@@ -1,6 +1,8 @@
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, AdViewSet, ExchangeProposalViewSet
 from django.urls import path, include
+
+from .views import UserViewSet, AdViewSet, ExchangeProposalViewSet
+
 
 
 router = DefaultRouter()

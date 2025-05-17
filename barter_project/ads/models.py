@@ -8,9 +8,9 @@ class Ad(models.Model):
         ('used', 'б/у')
     ]
 
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=50)
-    description = models.CharField(max_length=50)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    description = models.CharField(max_length=200)
     image_url = models.URLField(blank=True, null=True)
     category = models.CharField(max_length=50)
     condition = models.CharField(max_length=10, choices=CONDITION_CHOICES)

@@ -1,12 +1,16 @@
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from django.contrib.auth.models import User
-from .models import Ad, ExchangeProposal
-from .serializer import AdSerializer, UserSerializer, ExchangeProposalSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from .permissions import IsOwnerOrReadOnly, IsSenderOrReadOnly
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from rest_framework.exceptions import PermissionDenied
+from rest_framework import status
+from django.contrib.auth.models import User
+from django_filters.rest_framework import DjangoFilterBackend
+from django.db import models
+
+from .serializer import AdSerializer, UserSerializer, ExchangeProposalSerializer
+from .models import Ad, ExchangeProposal
+from .permissions import IsOwnerOrReadOnly, IsSenderOrReadOnly
 
 
 class UserViewSet(ReadOnlyModelViewSet):
@@ -29,9 +33,6 @@ class AdViewSet(ModelViewSet):
             response.data['message'] = 'По вашему запросы ничего не найдено ('
         return response
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
 
 class ExchangeProposalViewSet(ModelViewSet):
     queryset = ExchangeProposal.objects.all()
@@ -42,8 +43,36 @@ class ExchangeProposalViewSet(ModelViewSet):
     filterset_fields = ['status', 'ad_sender', 'ad_receiver']
     search_fields = ['comment']
 
-    def perform_create(self, serializer):
-        ad_sender = serializer.validated_data['ad_sender']
-        if ad_sender.user != self.request.user:
-            raise PermissionDenied("Вы можете отправлять предложения только от своих объявлений")
-        serializer.save()
+    @action(detail=False, methods=['get'], url_path='my')
+    def my_proposals(self, request):
+        user = request.user
+        user_ads = Ad.objects.filter(user=user)
+        proposals = ExchangeProposal.objects.filter(models.Q(ad_sender__in=user_ads) |
+                                                    models.Q(ad_receiver__in=user_ads)).distinct()
+
+        page = self.paginate_queryset(proposals)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(proposals, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def accept(self, request, pk=None):
+        proposal = self.get_object()
+        if proposal.ad_receiver.user != request.user:
+            return Response({'detail': 'Вы не можете принят это предложение'}, status=status.HTTP_403_FORBIDDEN)
+
+        proposal.status = 'accepted'
+        proposal.save()
+        return Response({'status': 'accepted'}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'])
+    def decline(self, request, pk=None):
+        proposal = self.get_object()
+        if proposal.ad_receiver.user != request.user:
+            return Response({'detail': 'Вы не можете отклонить это предложение'}, status=status.HTTP_403_FORBIDDEN)
+
+        proposal.status = 'declined'
+        proposal.save()
+        return Response({'status': 'declined'}, status=status.HTTP_200_OK)
