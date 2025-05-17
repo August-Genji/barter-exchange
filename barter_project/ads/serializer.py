@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from rest_framework.exceptions import PermissionDenied
 
 from .models import Ad, ExchangeProposal
 
@@ -26,14 +27,16 @@ class AdSerializer(serializers.ModelSerializer):
 class ExchangeProposalSerializer(serializers.ModelSerializer):
     ad_sender = AdSerializer(read_only=True)
     ad_sender_id = serializers.PrimaryKeyRelatedField(queryset=Ad.objects.all(), write_only=True, source='ad_sender')
+    ad_receiver_id = serializers.PrimaryKeyRelatedField(queryset=Ad.objects.all(), write_only=True, source='ad_receiver')
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
         model = ExchangeProposal
-        fields = ['id', 'ad_sender', 'ad_sender_id', 'ad_receiver', 'comment', 'status', 'created_at']
+        fields = ['id', 'ad_sender', 'ad_sender_id', 'ad_receiver_id',  'comment', 'status', 'created_at', 'status_display']
         read_only_fields = ['status', 'created_at']
 
-    def validated_ad_sender(self, value):
+    def validate_ad_sender_id(self, value):
         request = self.context['request']
         if value.user != request.user:
-            raise serializers.ValidationError("Можно отправлять предложения только от своих объявлений")
+            raise PermissionDenied("Можно отправлять предложения только от своих объявлений")
         return value

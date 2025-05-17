@@ -21,6 +21,9 @@ class Ad(models.Model):
 
 
 class ExchangeProposal(models.Model):
+    class Meta:
+        ordering = ['-created_at']
+
     STATUS_CHOICES = [
         ('pendidng', 'ожидает'),
         ('accepted', 'принят'),
