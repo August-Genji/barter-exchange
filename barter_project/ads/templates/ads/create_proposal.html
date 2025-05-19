@@ -1,0 +1,24 @@
+{% extends 'ads/base.html' %}
+
+{% block title %}Предложить обмен{% endblock %}
+
+{% block content %}
+<h2>Обмен на: {{ ad_receiver.title }}</h2>
+<p><strong>Описание:</strong> {{ ad_receiver.description }}</p>
+<p><strong>Категория:</strong> {{ ad_receiver.category }} | <strong>Состояние:</strong> {{ ad_receiver.condition }}</p>
+<hr>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ form.ad_sender.label_tag }}
+        {{ form.ad_sender }}
+    </div>
+    <div class="mb-3">
+        {{ form.comment.label_tag }}
+        {{ form.comment }}
+    </div>
+    <button type="submit" class="btn btn-primary">Отправить предложение</button>
+    <a href="{% url 'ad_detail' ad_receiver.pk %}" class="btn btn-secondary">Назад</a>
+</form>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'ads/base.html' %}
+
+{% block title %}Мои предложения{% endblock %}
+
+{% block content %}
+<h2>Мои предложения</h2>
+
+{% if proposals %}
+  <div class="row">
+    {% for proposal in proposals %}
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">
+              {% if proposal.ad_sender.user == request.user %}
+                Вы предложили обмен на: {{ proposal.ad_receiver.title }}
+              {% else %}
+                Вам предложили обмен на: {{ proposal.ad_receiver.title }}
+              {% endif %}
+            </h5>
+
+            <p class="card-text">
+              <strong>Объявление отправителя:</strong> {{ proposal.ad_sender.title }}<br>
+              <strong>Комментарий:</strong> {{ proposal.comment }}<br>
+              <strong>Статус:</strong>
+              {% if proposal.status == 'pending' %}
+                <span class="text-warning">Ожидает</span>
+              {% elif proposal.status == 'accepted' %}
+                <span class="text-success">Принято</span>
+              {% elif proposal.status == 'declined' %}
+                <span class="text-danger">Отклонено</span>
+              {% endif %}
+            </p>
+
+            {% if proposal.ad_receiver.user == request.user and proposal.status == 'pending' %}
+              <form method="post" action="{% url 'accept_proposal' proposal.id %}" style="display: inline">
+                {% csrf_token %}
+                <button class="btn btn-success btn-sm">Принять</button>
+              </form>
+              <form method="post" action="{% url 'decline_proposal' proposal.id %}" style="display: inline">
+                {% csrf_token %}
+                <button class="btn btn-danger btn-sm">Отклонить</button>
+              </form>
+            {% endif %}
+
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p>У вас пока нет предложений обмена.</p>
+{% endif %}
+<a href="{% url 'ad_list' %}" class="btn btn-secondary">← Назад</a>
+{% endblock %}

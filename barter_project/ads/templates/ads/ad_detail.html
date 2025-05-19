@@ -1,0 +1,24 @@
+{% extends "ads/base.html" %}
+
+{% block title %}{{ ad.title }}{% endblock %}
+
+{% block content %}
+<h2>{{ ad.title }}</h2>
+<p>{{ ad.description }}</p>
+<p><strong>Категория:</strong> {{ ad.category }}</p>
+<p><strong>Состояние:</strong> {{ ad.condition }}</p>
+<p><strong>Автор:</strong> {{ ad.user.username }}</p>
+
+{% if request.user == ad.user %}
+    <a href="{% url 'ad_edit' ad.pk %}" class="btn btn-primary">Редактировать</a>
+    <a href="{% url 'ad_delete' ad.pk %}" class="btn btn-danger">Удалить</a>
+{% else %}
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'create_proposal' ad.pk %}" class="btn btn-warning">🔁 Предложить обмен</a>
+    {% else %}
+        <p><a href="{% url 'login' %}?next={{ request.path }}">Войдите</a>, чтобы предложить обмен.</p>
+    {% endif %}
+{% endif %}
+
+<a href="{% url 'ad_list' %}" class="btn btn-secondary mt-3">← Назад к объявлениям</a>
+{% endblock %}

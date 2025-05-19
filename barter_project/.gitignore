@@ -1,7 +1,6 @@
 # Python
 __pycache__/
 *.py[cod]
-*.sqlite3
 *.log
 
 # Django
@@ -9,19 +8,25 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-db.sqlite3
-media/
-staticfiles/
 *.db
 
-# Env
-.env
-./venv/
-.env.*
 
-# VS Code
+
+
+media/
+
+
+
+staticfiles/
+
+# Env & виртуальное окружение
+.env
+.env.*
+venv/
+
+# IDE / редакторы
 .vscode/
 
-# OS
+# ОС
 .DS_Store
 Thumbs.db
