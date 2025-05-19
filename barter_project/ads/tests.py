@@ -89,3 +89,21 @@ class BarterTests(APITestCase):
         url = f'/api/proposals/{proposal.id}/decline/'
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_accept_proposal_by_receiver(self):
+        proposal = ExchangeProposal.objects.create(
+            ad_sender=self.ad1,
+            ad_receiver=self.ad2,
+            comment="Обмен на книгу"
+        )
+
+        self.authenticate(self.user2)  # user2 — владелец ad2, он должен иметь право принять
+
+        url = f'/api/proposals/{proposal.id}/accept/'
+        response = self.client.post(url)
+
+        proposal.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(proposal.status, 'accepted')
+

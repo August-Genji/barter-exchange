@@ -1,7 +1,7 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework import filters
 from rest_framework import status
 from django.contrib.auth.models import User
@@ -42,6 +42,11 @@ class ExchangeProposalViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['status', 'ad_sender', 'ad_receiver']
     search_fields = ['comment']
+
+    def get_permissions(self):
+        if self.action in ['accept', 'decline', 'my_proposals']:
+            return [IsAuthenticated()]
+        return super().get_permissions()
 
     @action(detail=False, methods=['get'], url_path='my')
     def my_proposals(self, request):
