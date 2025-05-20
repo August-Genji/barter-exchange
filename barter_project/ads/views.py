@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models.functions import Lower
-from django.http import HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
@@ -110,7 +110,7 @@ class AdListView(ListView):
         if q:
             queryset = queryset.annotate(
                 title_lower=Lower('title'),
-                description_lower=Lower('description')  # 👈 с маленькой буквы
+                description_lower=Lower('description')
 
             ).filter(
                 Q(title_lower__icontains=q.lower()) |
