@@ -198,6 +198,7 @@ class MyExchangeProposalsView(View):
             'proposals': proposals
         })
 
+
 @require_POST
 @login_required
 def accept_proposal(request, pk):
@@ -207,6 +208,7 @@ def accept_proposal(request, pk):
     proposal.status = 'accepted'
     proposal.save()
     return redirect('my_proposals')
+
 
 @require_POST
 @login_required
@@ -218,6 +220,7 @@ def decline_proposal(request, pk):
     proposal.save()
     return redirect('my_proposals')
 
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -228,4 +231,3 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'ads/login.html', {'form': form})
-

@@ -5,9 +5,12 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
+    {% if user.is_authenticated %}
     <a href="?" class="btn btn-outline-dark {% if not request.GET.mine %}active{% endif %}">Все</a>
     <a href="?mine=1" class="btn btn-outline-dark {% if request.GET.mine %}active{% endif %}">Мои</a>
+    {% endif %}
   </div>
+
 
   <form method="get" class="d-flex">
     <input type="text" name="q" value="{{ request.GET.q }}" class="form-control me-2" placeholder="Поиск...">
@@ -34,7 +37,10 @@
       <div class="card-body">
         <h5 class="card-title">{{ ad.title }}</h5>
         <p class="card-text">{{ ad.description|truncatechars:100 }}</p>
-        <p class="text-muted">{{ ad.category }} — {{ ad.condition }}</p>
+        <div class="d-flex gap-3 text-muted small">
+        <span><strong>Категория: </strong>{{ ad.category }}</span>
+        <span><strong>Состояние: </strong>{{ ad.condition }}</span>
+    </div>
         <a href="{% url 'ad_detail' ad.pk %}" class="btn btn-sm btn-outline-primary">Подробнее</a>
       </div>
     </div>
